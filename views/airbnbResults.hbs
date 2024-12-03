@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+</head>
+<body>
+  <h1>{{title}}</h1>
+
+  {{#each airbnbs}}
+    <div class="airbnb">
+      <h2>{{name}}</h2>
+      <img src="{{images.picture_url}}" alt="{{name}}" style="width: 100px; height: 100px;">
+      <p>{{summary}}</p>
+      <p><strong>Price:</strong> ${{price}} per night</p>
+      <p><strong>Location:</strong> {{address.street}}, {{address.suburb}}, {{address.country}}</p>
+      <p><strong>Host:</strong> <a href="{{host.host_url}}" target="_blank">{{host.host_name}}</a></p>
+      <p><strong>Minimum Nights:</strong> {{minimum_nights}}</p>
+      <p><strong>Maximum Nights:</strong> {{maximum_nights}}</p>
+      <p><strong>Guests Included:</strong> {{guests_included}}</p>
+      <p><strong>Reviews:</strong> {{number_of_reviews}}</p>
+      <a href="{{listing_url}}" target="_blank">View Listing</a>
+    </div>
+  {{else}}
+    <p>No results found for the given search criteria.</p>
+  {{/each}}
+
+  <!-- Pagination Controls -->
+  <div class="pagination">
+    <p>Page: {{query.page}} of {{totalPages}}</p>
+    <a href="/airbnbSearch?page={{previousPage}}" class="prev">Previous</a>
+    <a href="/airbnbSearch?page={{nextPage}}" class="next">Next</a>
+  </div>
+</body>
+</html>
