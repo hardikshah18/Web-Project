@@ -19,7 +19,7 @@ router.post('/api/AirBnBs', async (req, res) => {
 
 // GET: List AirBnBs with pagination, filtering by minimum_nights and location
 router.get('/api/AirBnBs', async (req, res) => {
-  const { page = 1, perPage = 5, minimum_nights, location } = req.query;
+  const { page = 1, perPage = 5, minimum_nights } = req.query;
   if (isNaN(page) || isNaN(perPage)) {
     return res.status(400).json({ message: "Page and perPage must be numbers" });
   }
@@ -27,8 +27,7 @@ router.get('/api/AirBnBs', async (req, res) => {
     const airbnbs = await db.getAllAirBnBs(
       parseInt(page),
       parseInt(perPage),
-      minimum_nights,
-      location
+      minimum_nights
     );
     res.status(200).json(airbnbs);
   } catch (err) {
