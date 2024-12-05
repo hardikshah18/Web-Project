@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit AirBnB Listing</title>
+  <link rel="stylesheet" href="/public/css/style.css">
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    /* Header Style */
+    header {
+      background-color: #333;
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    header nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.1rem;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+
+    header nav a:hover {
+      background-color: #4CAF50;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Main Content Area */
+    main {
+      padding: 30px;
+      max-width: 900px;
+      margin: 50px auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* Form Styling */
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input {
+      margin-bottom: 20px;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4CAF50;
+    }
+
+    /* Footer Style */
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      header nav a {
+        margin-bottom: 10px;
+      }
+
+      form {
+        padding: 15px;
+      }
+
+      input, button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/all-data">View All Listings</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Edit Listing</h1>
+
+    <form action="/update/{{listing._id}}" method="POST">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" value="{{listing.name}}" required>
+
+      <label for="city">City</label>
+      <input type="text" name="city" id="city" value="{{listing.address.city}}" required>
+
+      <label for="price">Price</label>
+      <input type="number" name="price" id="price" value="{{listing.price}}" required>
+
+      <button type="submit">Save Changes</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2024 AirBnB Finder</p>
+  </footer>
+</body>
+</html>

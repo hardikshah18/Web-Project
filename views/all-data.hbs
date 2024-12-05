@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search for AirBnBs</title>
+  <title>All AirBnB Listings</title>
   <link rel="stylesheet" href="/public/css/style.css">
 
   <style>
@@ -52,7 +52,7 @@
     /* Main Content Area */
     main {
       padding: 30px;
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 20px auto;
       background-color: white;
       border-radius: 8px;
@@ -66,36 +66,11 @@
       color: #333;
     }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 1rem;
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
       color: #333;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background-color: #45a049;
     }
 
     table {
@@ -123,6 +98,27 @@
       background-color: #f1f1f1;
     }
 
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-buttons a,
+    .action-buttons button {
+      padding: 5px 10px;
+      font-size: 1rem;
+      color: white;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .action-buttons a:hover,
+    .action-buttons button:hover {
+      background-color: #0056b3;
+    }
+
     /* Footer Style */
     footer {
       text-align: center;
@@ -132,34 +128,6 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-    }
-
-    /* Pagination Style */
-    .pagination {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .pagination a {
-      color: #007bff;
-      text-decoration: none;
-      padding: 5px 10px;
-      margin: 0 5px;
-    }
-
-    .pagination a:hover {
-      background-color: #f1f1f1;
-      border-radius: 4px;
-    }
-
-    .pagination .prev,
-    .pagination .next {
-      font-weight: bold;
-    }
-
-    .pagination p {
-      color: #333;
-      font-weight: bold;
     }
 
     /* Responsive Design */
@@ -175,7 +143,6 @@
     }
   </style>
 </head>
-
 <body>
   <header>
     <nav>
@@ -187,53 +154,50 @@
   </header>
 
   <main>
-    <h1>Search for AirBnBs</h1>
-
-    <form action="/airbnbSearch" method="GET">
-      <div class="form-group">
-        <label for="page">Page Number:</label>
-        <input type="number" id="page" name="page" value="{{page}}" min="1" required>
-      </div>
-
-      <div class="form-group">
-        <label for="perPage">Items per Page:</label>
-        <input type="number" id="perPage" name="perPage" value="{{perPage}}" min="1" required>
-      </div>
-
-      <button type="submit" class="btn">Search</button>
-    </form>
+    <h1>All AirBnB Listings</h1>
+    <h2>Available Listings</h2>
 
     {{#if airbnbs.length}}
     <table>
       <thead>
         <tr>
           <th>Name</th>
-          <th>Location</th>
           <th>Price</th>
-          <th>Host</th>
+          <th>Host Name</th>
+          <th>Address</th>
           <th>Minimum Nights</th>
+          <th>Amenities</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {{#each airbnbs}}
         <tr>
-          <td>{{name}}</td>
-          <td>{{address.street}}, {{address.suburb}}, {{address.country}}</td>
-          <td>${{price}} per night</td>
-          <td>{{host.host_name}}</td>
-          <td>{{minimum_nights}}</td>
+          <td>{{this.name}}</td>
+          <td>{{formatCurrency this.price}}</td>
+          <td>{{this.host.host_name}}</td>
+          <td>{{this.address.street}}, {{this.address.suburb}}, {{this.address.country}}</td>
+          <td>{{this.minimum_nights}}</td>
+          <td>{{joinAmenities this.amenities}}</td>
+          <td class="action-buttons">
+            <!-- Edit Button -->
+            <a href="/edit/{{this._id}}">Edit</a>
+            <!-- Delete Button -->
+            <form action="/delete/{{this._id}}" method="POST" style="display:inline;">
+              <button type="submit" onclick="return confirm('Are you sure you want to delete this listing?');">Delete</button>
+            </form>
+          </td>
         </tr>
         {{/each}}
       </tbody>
     </table>
     {{else}}
-    <p>No AirBnB results found for your search criteria.</p>
+    <p>No listings available.</p>
     {{/if}}
   </main>
 
   <footer>
-    <p>&copy; 2024 AirBnB Clone | All rights reserved.</p>
+    <p>&copy; 2024 AirBnB Listings</p>
   </footer>
-
 </body>
 </html>
