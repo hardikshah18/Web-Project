@@ -1,134 +1,135 @@
 const AirBnB = require("../models/airbnbModel");
-const mongoose = require("mongoose");
 
-// Add a new AirBnB
+// Add a new Airbnb
 const addNewAirBnB = async (req, res) => {
   try {
-    console.log(req.body);  // Log the incoming body
-    // No need to manually extract _id from the body if MongoDB handles it
-    const airbnbData = req.body;  // Just use the body directly
-    // Create a new AirBnB document
-    const airbnb = new AirBnB(airbnbData);
-    // Save the document to the database
+    const airbnb = new AirBnB(req.body);
     const result = await airbnb.save();
     res.status(201).json({ message: "AirBnB created successfully", airbnb: result });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `Error creating AirBnB: ${err.message}` });
   }
 };
 
-// Get all AirBnBs with pagination and optional filtering
 const getAllAirBnBs = async (req, res) => {
   const { page = 1, perPage = 6, minimum_nights } = req.query;
-  const query = minimum_nights ? { minimum_nights: minimum_nights } : {};
+
+  // Parse and validate query parameters
+  const parsedPage = parseInt(page);
+  const parsedPerPage = parseInt(perPage);
+
+  // Validate page and perPage values
+  if (isNaN(parsedPage) || parsedPage < 1) {
+    return res.status(400).json({ error: "Invalid page number. Must be a positive integer." });
+  }
+
+  if (isNaN(parsedPerPage) || parsedPerPage < 1) {
+    return res.status(400).json({ error: "Invalid perPage value. Must be a positive integer." });
+  }
+
+  // Build query object for filtering
+  const query = {};
+
+  // Handle minimum_nights filter
+  if (minimum_nights) {
+    const minNights = parseInt(minimum_nights);
+    if (isNaN(minNights) || minNights < 1) {
+      return res.status(400).json({ error: "Invalid minimum_nights value. It must be a positive integer." });
+    }
+    query.minimum_nights = { $gte: minNights };
+  }
+
   try {
+    // Fetch paginated and filtered AirBnB listings
     const airbnbs = await AirBnB.find(query)
-      .skip((page - 1) * perPage)
-      .limit(Number(perPage))
-      .sort({ _id: 1 });
-    res.json(airbnbs);
+      .skip((parsedPage - 1) * parsedPerPage)  // Pagination offset
+      .limit(parsedPerPage)                   // Limit the number of results per page
+      .sort({ _id: 1 });                      // Sort by ID in ascending order for consistency
+
+    // Count the total number of matching records for pagination metadata
+    const totalRecords = await AirBnB.countDocuments(query);
+
+    // Return paginated results with metadata
+    res.status(200).json({
+      currentPage: parsedPage,
+      perPage: parsedPerPage,
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / parsedPerPage),
+      data: airbnbs,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error fetching AirBnBs:', err);  // Log error for debugging
+    res.status(500).json({ error: `Error fetching AirBnBs: ${err.message}` });
   }
 };
 
-// Get AirBnB by ID
+
+// Get Airbnb by ID
 const getAirBnBById = async (req, res) => {
   try {
-    const id = req.params.id; // Extract the ID from request parameters
-    const airbnb = await AirBnB.findOne({ _id: id });  // Query based on the custom _id
+    const airbnb = await AirBnB.findById(req.params.id);
     if (!airbnb) {
       return res.status(404).json({ error: "AirBnB not found" });
     }
-
-    // Extract and return the necessary details
-    const airbnbDetails = {
-      listing_url: airbnb.listing_url,
-      description: airbnb.description,
-      neighborhood_overview: airbnb.neighborhood_overview,
-      cancellation_policy: airbnb.cancellation_policy,
-      property_type: airbnb.property_type,
-      minimum_nights: airbnb.minimum_nights,
-      room_type: airbnb.room_type,
-      accommodates: airbnb.accommodates,
-      price: airbnb.price,
-      images: airbnb.images,
-      review_score_value: airbnb.review_scores ? airbnb.review_scores.review_scores_value : null,
-      amenities: airbnb.amenities,
-    };
-    // Send the AirBnB details as a response
-    res.status(200).json(airbnbDetails);
+    res.status(200).json(airbnb);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `Error fetching AirBnB by ID: ${err.message}` });
   }
 };
 
-// Controller method to get AirBnB fees
+// Get Airbnb fees by ID
 const getAirBnBFeesById = async (req, res) => {
   try {
-    const id = req.params.id; // Extract the ID from request parameters
-    const airbnb = await AirBnB.findOne({ _id: id });  // Query based on the custom _id
+    const airbnb = await AirBnB.findById(req.params.id);
     if (!airbnb) {
       return res.status(404).json({ error: "AirBnB not found" });
     }
-    // Extract and return the necessary fee details
-    const feeDetails = {
+    const fees = {
       price: airbnb.price,
       cleaning_fee: airbnb.cleaning_fee,
       security_deposit: airbnb.security_deposit,
       accommodates: airbnb.accommodates,
       extra_people: airbnb.extra_people,
       guests_included: airbnb.guests_included,
-      bedrooms: airbnb.bedrooms,
-      beds: airbnb.beds,
-      street: airbnb.address ? airbnb.address.street : null // Make sure address exists
+      address: airbnb.address ? airbnb.address.street : null,
     };
-
-    // Send the fee details in the response
-    res.status(200).json(feeDetails);
+    res.status(200).json(fees);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `Error fetching fees: ${err.message}` });
   }
 };
 
-// Update AirBnB by ID
+// Update Airbnb by ID
 const updateAirBnBById = async (req, res) => {
-    try {
-      const updatedAirBnB = await AirBnB.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      // If no AirBnB document is found with the given _id, return a 404 error
-    if (!updatedAirBnB) {
+  try {
+    const airbnb = await AirBnB.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!airbnb) {
       return res.status(404).json({ error: "AirBnB not found" });
     }
-    // Return the updated AirBnB document
-    res.status(200).json({ message: "AirBnB updated successfully", updatedAirBnB });
+    res.status(200).json({ message: "AirBnB updated successfully", airbnb });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `Error updating AirBnB: ${err.message}` });
   }
-  };
-  
+};
 
-// Delete AirBnB by ID
+// Delete Airbnb by ID
 const deleteAirBnBById = async (req, res) => {
-    try {
-      const result = await AirBnB.findByIdAndDelete(req.params.id);
-      // If no AirBnB document is found with the given _id, return a 404 error
+  try {
+    const result = await AirBnB.findByIdAndDelete(req.params.id);
     if (!result) {
       return res.status(404).json({ error: "AirBnB not found" });
     }
-
-    // Return a success message
     res.status(200).json({ message: "AirBnB deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `Error deleting AirBnB: ${err.message}` });
   }
 };
-  
 
 module.exports = {
   addNewAirBnB,
   getAllAirBnBs,
   getAirBnBById,
+  getAirBnBFeesById,
   updateAirBnBById,
   deleteAirBnBById,
-  getAirBnBFeesById,
 };

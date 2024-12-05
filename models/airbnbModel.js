@@ -1,38 +1,32 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const airbnbSchema = new mongoose.Schema({
-  name: String,
-  summary: String,
-  description: String,
-  images: {
-    picture_url: String,
-    thumbnail_url: String,
-  },
-  host: {
-    host_name: String,
-    host_url: String,
-    host_location: String,
-    host_about: String,
-    host_thumbnail_url: String,
-    host_picture_url: String,
-  },
-  address: {
-    street: String,
-    suburb: String,
-    country: String,
+// Use this check to avoid overwriting the model.
+if (mongoose.models.AirBnB) {
+  module.exports = mongoose.models.AirBnB;
+} else {
+  const airbnbSchema = new mongoose.Schema({
+    description: String,
+    name: String,
+    price: Number,
     location: {
-      type: { type: String, default: 'Point' },
+      type: { type: String },
       coordinates: [Number],
     },
-  },
-  price: Number,
-  minimum_nights: Number,
-  maximum_nights: Number,
-  guests_included: Number,
-  reviews: Array,
-  listing_url: String,
-});
+    amenities: [String],
+    host: {
+      host_id: String,
+      host_name: String,
+    },
+    address: {
+      street: String,
+      suburb: String,
+      country: String,
+    },
+    minimum_nights: Number,
+    maximum_nights: Number,
+    reviews: [String], // Example, adjust based on actual reviews structure
+  });
 
-const AirBnB = mongoose.model('AirBnB', airbnbSchema);
-
-module.exports = AirBnB;
+  const AirBnB = mongoose.model("AirBnB", airbnbSchema);
+  module.exports = AirBnB;
+}
