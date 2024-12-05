@@ -77,10 +77,10 @@ const airbnbSchema = new mongoose.Schema({
 });
 
 const AirBnB = mongoose.model('AirBnB', airbnbSchema, 'listingsAndReviews');
-
 const db = {
   // Initialize MongoDB connection
-  initialize: async (connectionString) => {
+  initialize: async () => {
+    const connectionString = process.env.MONGO_URI;
     try {
       await mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
       console.log('MongoDB connected successfully');
