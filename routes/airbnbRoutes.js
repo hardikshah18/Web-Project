@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
+// <<<<<<< master
 // Middleware: Validate pagination query parameters
 const validatePagination = (req, res, next) => {
   const { page = 1, perPage = 5 } = req.query;
@@ -16,6 +17,10 @@ const sanitizeInput = (input) => {
   // Replace with a proper sanitization library (e.g., validator.js)
   return input ? String(input).trim() : input;
 };
+// =======
+// const AirBnB = require('../models/airbnbModel');
+// const {getAirBnBFeesById} = require('../controllers/airbnbController');
+// >>>>>>> main
 
 // POST: Add a new AirBnB
 router.post('/api/AirBnBs', async (req, res) => {
@@ -40,15 +45,28 @@ router.post('/api/AirBnBs', async (req, res) => {
 });
 
 // GET: List AirBnBs with pagination, filtering by minimum_nights and location
+// <<<<<<< master
 router.get('/api/AirBnBs', validatePagination, async (req, res) => {
   const { page = 1, perPage = 5, minimum_nights, location } = req.query;
 
+// =======
+// router.get('/api/AirBnBs', async (req, res) => {
+//   const { page = 1, perPage = 5, minimum_nights} = req.query;
+//   if (isNaN(page) || isNaN(perPage)) {
+//     return res.status(400).json({ message: "Page and perPage must be numbers" });
+//   }
+//   console.log(`minimum_nights: ${minimum_nights}`);
+// >>>>>>> main
   try {
     const airbnbs = await db.getAllAirBnBs(
       parseInt(page),
       parseInt(perPage),
+// <<<<<<< master
       sanitizeInput(minimum_nights),
       sanitizeInput(location)
+// =======
+//       parseInt(minimum_nights)
+// >>>>>>> main
     );
     res.status(200).json(airbnbs);
   } catch (err) {
@@ -68,6 +86,22 @@ router.get('/api/AirBnBs/:id', async (req, res) => {
     res.status(500).json({ message: `Error fetching AirBnB: ${err.message}` });
   }
 });
+
+router.get("/api/AirBnBs/fees/:id", getAirBnBFeesById);
+
+
+// router.get("/api/AirBnBs/fees/:id", async (req, res) => {
+//   try {
+//     const airbnb = await db.getAirBnBFeesById(req.params.id);
+//     if (!airbnb) {
+//       return res.status(404).json({ message: "AirBnB not found" });
+//     }
+//     res.status(200).json(airbnb);
+//   } catch (err) {
+//     res.status(500).json({ message: `Error fetching AirBnB: ${err.message}` });
+//   }
+// });
+
 
 // PUT: Update an AirBnB by ID
 router.put('/api/AirBnBs/:id', async (req, res) => {
