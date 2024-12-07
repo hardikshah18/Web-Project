@@ -4,10 +4,108 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add New Listing</title>
+  
+  <!-- Common stylesheet link -->
   <link rel="stylesheet" href="/public/css/style.css">
+  
+  <!-- Page-specific styles -->
   <style>
-    /* Your existing styles */
-    /* ... (same as before) ... */
+    /* Page-specific styles for the add-new form */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 0;
+    }
+
+    header nav {
+      text-align: center;
+    }
+
+    header nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1rem;
+    }
+
+    header nav a:hover {
+      color: #4CAF50;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    form div {
+      margin-bottom: 15px;
+    }
+
+    form label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    form input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    form button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    form button:hover {
+      background-color: #45a049;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+    }
+
+    footer p {
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -15,14 +113,14 @@
   <header>
     <nav>
       <a href="/">Home</a>
-      <a href="/all-data">View All Listings</a>
+      <a href="/all-data">View All Listings</a> <!-- Link to view all listings if needed -->
     </nav>
   </header>
 
   <main>
     <h1>Add New AirBnB Listing</h1>
 
-    <form action="/add-new" method="POST">
+    <form action="/add-new" method="POST" enctype="multipart/form-data">
       <div>
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required />
@@ -46,6 +144,10 @@
       <div>
         <label for="address_country">Country:</label>
         <input type="text" id="address_country" name="address.country" required />
+      </div>
+      <div>
+        <label for="image">Upload Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required />
       </div>
       <button type="submit">Add New</button>
     </form>

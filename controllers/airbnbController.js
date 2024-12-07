@@ -1,43 +1,40 @@
-const express = require('express');
-const db = require('../config/db');
-const AirBnB = require('../models/airbnbModel');
-
-const router = express.Router();
+const db = require("../config/db"); // Import the database logic from db.js
 
 // Add a new Airbnb
 const addNewAirBnB = async (req, res) => {
   try {
-    const airbnb = await db.add(req.body);
-    res.status(201).json({ message: "AirBnB created successfully", airbnb });
+    const result = await db.addNewAirBnB(req.body);
+    res.status(201).json({ message: "AirBnB created successfully", airbnb: result });
   } catch (err) {
     res.status(500).json({ error: `Error creating AirBnB: ${err.message}` });
   }
 };
 
-// Get all AirBnBs with pagination and filtering
 const getAllAirBnBs = async (req, res) => {
-  const { page = 1, perPage = 6, minimum_nights, location } = req.query;
+  const { page = 1, perPage = 6, minimum_nights } = req.query;
 
-  const query = {};
-  if (minimum_nights) {
-    const minNights = parseInt(minimum_nights);
-    if (isNaN(minNights)) {
-      return res.status(400).json({ error: "Invalid minimum_nights value. It must be a number." });
-    }
-    query.minimum_nights = { $gte: minNights };
+  // Parse and validate query parameters
+  const parsedPage = parseInt(page);
+  const parsedPerPage = parseInt(perPage);
+
+  // Validate page and perPage values
+  if (isNaN(parsedPage) || parsedPage < 1) {
+    return res.status(400).json({ error: "Invalid page number. Must be a positive integer." });
   }
-  if (location) {
-    query['address.government_area'] = { $regex: location, $options: 'i' };
+
+  if (isNaN(parsedPerPage) || parsedPerPage < 1) {
+    return res.status(400).json({ error: "Invalid perPage value. Must be a positive integer." });
   }
 
   try {
-    const airbnbs = await db.find(query, { page, perPage });
-    const totalRecords = await db.count(query);
+    const airbnbs = await db.getAllAirBnBs(parsedPage, parsedPerPage, minimum_nights);
+    const totalRecords = await db.countAirBnBs(minimum_nights); // Get the total number of records for pagination metadata
+
     res.status(200).json({
-      currentPage: parseInt(page),
-      perPage: parseInt(perPage),
+      currentPage: parsedPage,
+      perPage: parsedPerPage,
       totalRecords,
-      totalPages: Math.ceil(totalRecords / perPage),
+      totalPages: Math.ceil(totalRecords / parsedPerPage),
       data: airbnbs,
     });
   } catch (err) {
@@ -48,20 +45,17 @@ const getAllAirBnBs = async (req, res) => {
 // Get Airbnb by ID
 const getAirBnBById = async (req, res) => {
   try {
-    const airbnb = await db.findById(req.params.id);
-    if (!airbnb) return res.status(404).json({ error: "AirBnB not found" });
+    const airbnb = await db.getAirBnBById(req.params.id);
     res.status(200).json(airbnb);
   } catch (err) {
-    res.status(500).json({ error: `Error fetching AirBnB: ${err.message}` });
+    res.status(500).json({ error: `Error fetching AirBnB by ID: ${err.message}` });
   }
 };
 
 // Get Airbnb fees by ID
 const getAirBnBFeesById = async (req, res) => {
   try {
-    const airbnb = await db.findById(req.params.id);
-    if (!airbnb) return res.status(404).json({ error: "AirBnB not found" });
-
+    const airbnb = await db.getAirBnBById(req.params.id);
     const fees = {
       price: airbnb.price,
       cleaning_fee: airbnb.cleaning_fee,
@@ -80,8 +74,7 @@ const getAirBnBFeesById = async (req, res) => {
 // Update Airbnb by ID
 const updateAirBnBById = async (req, res) => {
   try {
-    const airbnb = await db.updateById(req.params.id, req.body);
-    if (!airbnb) return res.status(404).json({ error: "AirBnB not found" });
+    const airbnb = await db.updateAirBnBById(req.body, req.params.id);
     res.status(200).json({ message: "AirBnB updated successfully", airbnb });
   } catch (err) {
     res.status(500).json({ error: `Error updating AirBnB: ${err.message}` });
@@ -91,9 +84,8 @@ const updateAirBnBById = async (req, res) => {
 // Delete Airbnb by ID
 const deleteAirBnBById = async (req, res) => {
   try {
-    const result = await db.deleteById(req.params.id);
-    if (!result) return res.status(404).json({ error: "AirBnB not found" });
-    res.status(204).json({ message: "AirBnB deleted successfully" });
+    const result = await db.deleteAirBnBById(req.params.id);
+    res.status(200).json({ message: "AirBnB deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: `Error deleting AirBnB: ${err.message}` });
   }

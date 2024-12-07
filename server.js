@@ -1,36 +1,60 @@
 const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const path = require('path');
 const db = require('./config/db');
-const airbnbRoutes = require('./routes/airbnbRoutes');
-require('dotenv').config(); // For loading environment variables
+const airbnbRoutes = require('./routes/airbnbRoutes'); // Import routes from airbnbRoutes.js
+const hbs = require('hbs');
+const multer = require('multer');
+
+dotenv.config();
 
 const app = express();
-
-// Middleware for JSON parsing
+app.use(cors());
 app.use(express.json());
 
-// Use the airbnbRoutes for API routes
-app.use('/api', airbnbRoutes);
-
-// Initialize the database connection
-db.initialize(process.env.MONGO_URI) // Make sure the MongoDB URI is in your .env file
-  .then(() => {
-    // Start the server only after DB connection
-    app.listen(3000, () => {
-      console.log('Server is running on port 3000');
-    });
-  })
-  .catch((err) => {
-    console.error('Failed to connect to the database:', err);
-    process.exit(1); // Exit process with failure
-  });
-
-// Handle 404 - Route not found
-app.use((req, res, next) => {
-  res.status(404).json({ message: 'Route not found' });
+// Set up multer storage and file naming
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Set the directory for file storage
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique filename
+  },
 });
 
-// Global error handler for any other errors
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error stack to the console
-  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+const upload = multer({ storage: storage }); // Initialize multer with storage config
+
+// Set Handlebars as the templating engine
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views')); // Views folder location
+
+// Register Handlebars helpers
+hbs.registerHelper('eq', (a, b) => (a === b ? 'selected' : ''));
+hbs.registerHelper('joinAmenities', (amenities) => amenities.join(', '));
+hbs.registerHelper('formatCurrency', (price) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+});
+
+// Serve static files from 'public' and 'uploads' folders
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static('uploads')); // Make the uploads folder publicly accessible
+
+const PORT = process.env.PORT;
+
+// Initialize DB connection
+db.initialize(process.env.MONGO_URI)
+  .then(() => {
+    console.log('Database connection established successfully!');
+    
+    // Use imported routes for Airbnb functionalities
+    app.use('/', airbnbRoutes); // Apply routes to the app
+  })
+  .catch((err) => {
+    console.error('Error initializing MongoDB:', err);
+  });
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

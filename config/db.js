@@ -1,116 +1,111 @@
-const mongoose = require('mongoose');
-const AirBnB = require('../models/airbnbModel'); // Import the AirBnB model
+const mongoose = require("mongoose");
+const AirBnB = require("../models/airbnbModel");
 
-const db = {};
+const db = {
+  // Initialize MongoDB connection
+  initialize: async (connectionString) => {
+    try {
+      await mongoose.connect(connectionString); // Removed deprecated options
+      console.log('MongoDB connected successfully');
+    } catch (err) {
+      console.error('MongoDB connection error:', err.message);
+    }
+  },
 
-// Initialize the connection to MongoDB Atlas
-db.initialize = (connectionString) => {
-  return new Promise((resolve, reject) => {
-    mongoose.connect(connectionString, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => {
-      console.log('Successfully connected to MongoDB Atlas');
-      resolve();
-    })
-    .catch(err => {
-      console.error('Error connecting to MongoDB:', err);
-      reject(err);
-    });
-  });
-};
+  // Add a new AirBnB listing
+  addNewAirBnB: async (data) => {
+    const airbnb = new AirBnB(data);
+    try {
+      await airbnb.save();
+      return airbnb;
+    } catch (err) {
+      throw new Error(`Error adding new AirBnB: ${err.message}`);
+    }
+  },
 
-// Add a new AirBnB entry to the database
-db.addNewAirBnB = (data) => {
-  return new Promise((resolve, reject) => {
-    const newAirBnB = new AirBnB(data);
-    newAirBnB.save()
-      .then(() => {
-        console.log('New AirBnB added successfully');
-        resolve(newAirBnB);
-      })
-      .catch(err => {
-        console.error('Error adding new AirBnB:', err);
-        reject(err);
-      });
-  });
-};
-
-// Get all AirBnBs for a specific page with pagination and optional minimum_nights filter
-db.getAllAirBnBs = (page, perPage, minimum_nights) => {
-  return new Promise((resolve, reject) => {
+  // Get all AirBnBs with pagination and filtering
+  getAllAirBnBs: async (page = 1, perPage = 5, minimum_nights) => {
     const query = {};
+
+    // Only add minimum_nights to the query if it is provided
     if (minimum_nights) {
-      query.minimum_nights = { $gte: minimum_nights };
+      const minNights = parseInt(minimum_nights);
+      if (!isNaN(minNights)) {
+        query.minimum_nights = { $gte: minNights };
+      } else {
+        throw new Error('Invalid minimum_nights value. It must be a number.');
+      }
     }
 
-    AirBnB.find(query)
-      .skip((page - 1) * perPage)  // Skip based on the page and perPage values
-      .limit(perPage)  // Limit the number of items per page
-      .sort({ _id: 1 })  // Sort by AirBnB_id
-      .then(results => {
-        resolve(results);
-      })
-      .catch(err => {
-        console.error('Error fetching AirBnBs:', err);
-        reject(err);
-      });
-  });
-};
+    try {
+      // Count the total number of AirBnBs based on the query
+      const totalCount = await AirBnB.countDocuments(query);
 
-// Get a single AirBnB by its ID
-db.getAirBnBById = (id) => {
-  return new Promise((resolve, reject) => {
-    AirBnB.findById(id)
-      .then(result => {
-        if (!result) {
-          reject(new Error('AirBnB not found'));
-        } else {
-          resolve(result);
-        }
-      })
-      .catch(err => {
-        console.error('Error fetching AirBnB by ID:', err);
-        reject(err);
-      });
-  });
-};
+      // Calculate the total number of pages based on the totalCount and perPage
+      const totalPages = Math.ceil(totalCount / perPage);
 
-// Update an existing AirBnB by its ID
-db.updateAirBnBById = (data, id) => {
-  return new Promise((resolve, reject) => {
-    AirBnB.findByIdAndUpdate(id, data, { new: true })  // Update and return the new object
-      .then(updatedAirBnB => {
-        if (!updatedAirBnB) {
-          reject(new Error('AirBnB not found'));
-        } else {
-          resolve(updatedAirBnB);
-        }
-      })
-      .catch(err => {
-        console.error('Error updating AirBnB by ID:', err);
-        reject(err);
-      });
-  });
-};
+      // Fetch the AirBnBs for the current page, based on pagination
+      const airbnbs = await AirBnB.find(query)
+        .skip((page - 1) * perPage) // Skip records for the current page
+        .limit(perPage) // Limit the number of records to perPage
+        .sort({ name: 1 }); // Sort the records by name or any other field as required
 
-// Delete an AirBnB by its ID
-db.deleteAirBnBById = (id) => {
-  return new Promise((resolve, reject) => {
-    AirBnB.findByIdAndDelete(id)
-      .then(deletedAirBnB => {
-        if (!deletedAirBnB) {
-          reject(new Error('AirBnB not found'));
-        } else {
-          resolve(deletedAirBnB);
-        }
-      })
-      .catch(err => {
-        console.error('Error deleting AirBnB by ID:', err);
-        reject(err);
-      });
-  });
+      return {
+        airbnbs,
+        totalPages,
+        currentPage: page,
+      };
+    } catch (err) {
+      throw new Error(`Error fetching AirBnBs: ${err.message}`);
+    }
+  },
+
+  // Update an existing AirBnB by ID
+  updateAirBnBById: async (data, id) => {
+    try {
+      const airbnb = await AirBnB.findByIdAndUpdate(id, data, { new: true });
+      if (!airbnb) throw new Error('AirBnB not found');
+      return airbnb;
+    } catch (err) {
+      throw new Error(`Error updating AirBnB: ${err.message}`);
+    }
+  },
+
+  // Delete an AirBnB by ID
+  deleteAirBnBById: async (id) => {
+    try {
+      const airbnb = await AirBnB.findByIdAndDelete(id);
+      if (!airbnb) throw new Error('AirBnB not found');
+      return airbnb;
+    } catch (err) {
+      throw new Error(`Error deleting AirBnB: ${err.message}`);
+    }
+  },
+
+  // Count the total number of AirBnBs with filters
+  countAirBnBs: async (minimum_nights, location) => {
+    const query = {};
+
+    // Validate and parse minimum_nights
+    if (minimum_nights) {
+      const minNights = parseInt(minimum_nights);
+      if (!isNaN(minNights)) {
+        query.minimum_nights = { $gte: minNights };
+      } else {
+        throw new Error('Invalid minimum_nights value. It must be a number.');
+      }
+    }
+
+    // Filter for location using case-insensitive regex for flexibility
+    if (location) query['address.government_area'] = { $regex: location, $options: 'i' };
+
+    try {
+      const count = await AirBnB.countDocuments(query);
+      return count;
+    } catch (err) {
+      throw new Error(`Error counting AirBnBs: ${err.message}`);
+    }
+  },
 };
 
 module.exports = db;
