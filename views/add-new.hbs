@@ -120,7 +120,7 @@
   <main>
     <h1>Add New AirBnB Listing</h1>
 
-    <form action="/add-new" method="POST">
+    <form action="/add-new" method="POST" enctype="multipart/form-data">
       <div>
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required />
@@ -144,6 +144,10 @@
       <div>
         <label for="address_country">Country:</label>
         <input type="text" id="address_country" name="address.country" required />
+      </div>
+      <div>
+        <label for="image">Upload Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required />
       </div>
       <button type="submit">Add New</button>
     </form>
