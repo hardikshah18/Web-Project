@@ -1,60 +1,73 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const db = require('./config/db');
-const airbnbRoutes = require('./routes/airbnbRoutes'); // Import routes from airbnbRoutes.js
-const hbs = require('hbs');
-const multer = require('multer');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require('cookie-parser');
+const path = require("path");
+const hbs = require("hbs");
+const userRoutes = require('./routes/userRoutes');
 
-dotenv.config();
+const { connectToDB } = require("./config/db");
+const airbnbRoutes = require("./routes/airbnbRoutes");
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Set up multer storage and file naming
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Set the directory for file storage
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique filename
-  },
+// Static Files
+app.use(express.static(path.join(__dirname, "public")));
+
+// Swagger Docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Set HBS as View Engine
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "views"));
+
+// Set Layouts Directory
+app.set("view options", { layout: "layout/main" });
+
+// Register HBS Partials and Helpers
+hbs.registerPartials(path.join(__dirname, "views", "partials"));
+
+hbs.registerHelper("eq", (a, b) => (a === b ? "selected" : ""));
+hbs.registerHelper("joinAmenities", (amenities) => amenities.join(", "));
+hbs.registerHelper("formatCurrency", (price) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price)
+);
+hbs.registerHelper('add', function(a, b) {
+  return a + b;
+});
+hbs.registerHelper('subtract', function(a, b) {
+  return a - b;
 });
 
-const upload = multer({ storage: storage }); // Initialize multer with storage config
-
-// Set Handlebars as the templating engine
-app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, 'views')); // Views folder location
-
-// Register Handlebars helpers
-hbs.registerHelper('eq', (a, b) => (a === b ? 'selected' : ''));
-hbs.registerHelper('joinAmenities', (amenities) => amenities.join(', '));
-hbs.registerHelper('formatCurrency', (price) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+// Register the 'greater than' helper (gt)
+hbs.registerHelper('gt', function(a, b) {
+  return a > b ? true : false;  // Return true if a > b, otherwise false
 });
 
-// Serve static files from 'public' and 'uploads' folders
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static('uploads')); // Make the uploads folder publicly accessible
+// Register the 'less than' helper (lt)
+hbs.registerHelper('lt', function(a, b) {
+  return a < b ? true : false;  // Return true if a < b, otherwise false
+});
 
-const PORT = process.env.PORT;
 
-// Initialize DB connection
-db.initialize(process.env.MONGO_URI)
+// Routes
+app.use("/", airbnbRoutes);
+app.use('/api/users', userRoutes);
+// Connect to Database and Start Server
+connectToDB()
   .then(() => {
-    console.log('Database connection established successfully!');
-    
-    // Use imported routes for Airbnb functionalities
-    app.use('/', airbnbRoutes); // Apply routes to the app
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch((err) => {
-    console.error('Error initializing MongoDB:', err);
+    console.error("Failed to start server:", err);
   });
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
