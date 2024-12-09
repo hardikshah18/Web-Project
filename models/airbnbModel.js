@@ -185,5 +185,5 @@ const airbnbSchema = new mongoose.Schema({
   }]
 });
 
-const Airbnb = mongoose.model('Airbnb', airbnbSchema, 'listingsAndReviews'); 
+const Airbnb = mongoose.model('Airbnb', airbnbSchema, 'airbnbs'); 
 module.exports = Airbnb;

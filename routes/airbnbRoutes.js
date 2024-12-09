@@ -188,8 +188,8 @@ router.get("/api/AirBnBs/:id", getAirBnBById);
 router.put("/api/AirBnBs/:id", updateAirBnBById);
 router.delete("/api/AirBnBs/:id", deleteAirBnBById);
 router.get("/api/AirBnBs/fees/:id", getAirBnBFeesById);
-router.get('*', (req, res) => {
-  res.render('404');
-});
+// router.get('*', (req, res) => {
+//   res.render('404');
+// });
 
 module.exports = router;
