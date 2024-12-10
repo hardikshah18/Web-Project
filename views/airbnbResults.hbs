@@ -1,0 +1,46 @@
+<div class="row">
+  {{#each airbnbs}}
+  <div class="col-md-4 mb-4">
+    <div class="card shadow-sm">
+      <!-- Image -->
+      <img
+        src="{{images.[0]}}" 
+        class="card-img-top" 
+        alt="AirBnB Image"
+        onerror="this.src='https://via.placeholder.com/300';"
+      />
+      
+      <!-- Card Body -->
+      <div class="card-body">
+        <!-- Price -->
+        <h5 class="card-title">$ {{price}} / night</h5>
+
+        <!-- Rating -->
+        {{#if review_score_value}}
+        <p class="card-text">
+          <strong>Rating:</strong> {{review_score_value}}/10
+        </p>
+        {{else}}
+        <p class="card-text text-muted">No reviews yet</p>
+        {{/if}}
+
+        <!-- Address -->
+        <p class="card-text"> 
+          <strong>Address:</strong> {{#if address.street}}{{address.street}}{{else}}N/A{{/if}}
+        </p>
+
+        <!-- Minimum Nights -->
+        <p class="card-text">
+          <strong>Minimum Nights:</strong> {{minimum_nights}}
+        </p>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between align-items-center">
+          <a href="/airbnb/{{_id}}" class="btn btn-sm btn-primary">View Details</a>
+          <button class="btn btn-sm btn-danger" onclick="deleteAirBnB('{{_id}}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{/each}}
+</div>

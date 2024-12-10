@@ -1,0 +1,263 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "AirBnB API Documentation",
+      "version": "1.0.0",
+      "description": "API documentation for AirBnB CRUD operations"
+    },
+    "host": "localhost:3000",
+    "basePath": "/api/v1",
+    "schemes": ["http"],
+    "paths": {
+      "/airbnbs": {
+        "post": {
+          "summary": "Add a new AirBnB",
+          "description": "Create a new AirBnB listing",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": true,
+              "description": "AirBnB data to add",
+              "schema": {
+                "$ref": "#/definitions/AirBnB"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "AirBnB created successfully",
+              "schema": {
+                "$ref": "#/definitions/AirBnB"
+              }
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        },
+        "get": {
+          "summary": "Get all AirBnBs",
+          "description": "Retrieve a paginated list of AirBnB listings, with optional filtering by `minimum_nights`",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "description": "Page number"
+            },
+            {
+              "name": "perPage",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "description": "Number of items per page"
+            },
+            {
+              "name": "minimum_nights",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "description": "Filter by minimum nights"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of AirBnB listings",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/AirBnB"
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/airbnbs/{id}": {
+        "get": {
+          "summary": "Get an AirBnB by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "ID of the AirBnB"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Details of the AirBnB",
+              "schema": {
+                "$ref": "#/definitions/AirBnBDetails"
+              }
+            },
+            "404": {
+              "description": "AirBnB not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        },
+        "put": {
+          "summary": "Update an AirBnB by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "ID of the AirBnB to update"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": true,
+              "description": "Updated AirBnB data",
+              "schema": {
+                "$ref": "#/definitions/AirBnB"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "AirBnB updated successfully",
+              "schema": {
+                "$ref": "#/definitions/AirBnB"
+              }
+            },
+            "404": {
+              "description": "AirBnB not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete an AirBnB by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "ID of the AirBnB to delete"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "AirBnB deleted successfully"
+            },
+            "404": {
+              "description": "AirBnB not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/airbnbs/{id}/fees": {
+        "get": {
+          "summary": "Get AirBnB fees by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "ID of the AirBnB"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Fee details of the AirBnB",
+              "schema": {
+                "$ref": "#/definitions/FeeDetails"
+              }
+            },
+            "404": {
+              "description": "AirBnB not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "AirBnB": {
+        "type": "object",
+        "properties": {
+          "listing_url": { "type": "string" },
+          "description": { "type": "string" },
+          "neighborhood_overview": { "type": "string" },
+          "cancellation_policy": { "type": "string" },
+          "property_type": { "type": "string" },
+          "minimum_nights": { "type": "integer" },
+          "room_type": { "type": "string" },
+          "accommodates": { "type": "integer" },
+          "price": { "type": "number" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "review_scores": {
+            "type": "object",
+            "properties": {
+              "review_scores_value": { "type": "integer" }
+            }
+          },
+          "amenities": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "AirBnBDetails": {
+        "type": "object",
+        "properties": {
+          "listing_url": { "type": "string" },
+          "description": { "type": "string" },
+          "neighborhood_overview": { "type": "string" },
+          "cancellation_policy": { "type": "string" },
+          "property_type": { "type": "string" },
+          "minimum_nights": { "type": "integer" },
+          "room_type": { "type": "string" },
+          "accommodates": { "type": "integer" },
+          "price": { "type": "number" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "review_score_value": { "type": "integer" },
+          "amenities": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "FeeDetails": {
+        "type": "object",
+        "properties": {
+          "price": { "type": "number" },
+          "cleaning_fee": { "type": "number" },
+          "security_deposit": { "type": "number" },
+          "accommodates": { "type": "integer" },
+          "extra_people": { "type": "number" },
+          "guests_included": { "type": "integer" },
+          "bedrooms": { "type": "integer" },
+          "beds": { "type": "integer" },
+          "street": { "type": "string" }
+        }
+      }
+    }
+  }  
