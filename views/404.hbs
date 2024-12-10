@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Not Found</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.4/lottie.min.js"></script>
+ <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f8f9fa;
+    }
+
+    .lottie-container {
+      width: 100%;
+      height: 100%;
+      max-width: 1000px; /* Optional: limit the max width of the animation */
+      max-height: 100vh; /* Ensures the animation doesn't exceed the viewport height */
+      overflow: hidden;
+    }
+
+    /* Optional: Make sure the container fits the full screen with proper scaling */
+    .lottie-container svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Ensures the animation fits within the container without distortion */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Lottie Animation Container -->
+  <div class="lottie-container" id="lottie-404"></div>
+
+  <!-- Lottie Script to Load Animation -->
+  <script>
+    lottie.loadAnimation({
+      container: document.getElementById('lottie-404'), // The container to render the animation
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: '404.json' // Replace with your Lottie JSON URL
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+<section>  
+  <h1>{{listing.name}}</h1>
+</section>
+
+<section class="images">
+  <img src="{{listing.images.picture_url}}" alt="{{listing.name}}" />
+</section>
+
+<section class="details">
+  <h2>Details</h2>
+  <ul>
+    <li><strong>Description:</strong> {{listing.description}}</li>
+    <li><strong>Space:</strong> {{listing.space}}</li>
+    <li><strong>Neighborhood Overview:</strong> {{listing.neighborhood_overview}}</li>
+    <li><strong>House Rules:</strong> {{listing.house_rules}}</li>
+    <li><strong>Property Type:</strong> {{listing.property_type}}</li>
+    <li><strong>Room Type:</strong> {{listing.room_type}}</li>
+    <li><strong>Bed Type:</strong> {{listing.bed_type}}</li>
+    <li><strong>Price:</strong> ${{listing.price}}</li>
+    <li><strong>Amenities:</strong> 
+      {{#each listing.amenities}}
+        <span>{{this}}</span>
+      {{/each}}
+    </li>
+  </ul>
+</section>
+
+<section class="host-info">
+  <h2>Host Information</h2>
+  <ul>
+    <li><strong>Name:</strong> {{listing.host.host_name}}</li>
+    <li><strong>Location:</strong> {{listing.host.host_location}}</li>
+    <li><strong>About:</strong> {{listing.host.host_about}}</li>
+    <li><strong>Response Time:</strong> {{listing.host.host_response_time}}</li>
+    <li><strong>Response Rate:</strong> {{listing.host.host_response_rate}}%</li>
+    <li><strong>Superhost:</strong> {{#if listing.host.host_is_superhost}}Yes{{else}}No{{/if}}</li>
+  </ul>
+</section>
+
+<section class="address">
+  <h2>Address</h2>
+  <ul>
+    <li><strong>Street:</strong> {{listing.address.street}}</li>
+    <li><strong>Suburb:</strong> {{listing.address.suburb}}</li>
+    <li><strong>Government Area:</strong> {{listing.address.government_area}}</li>
+    <li><strong>Market:</strong> {{listing.address.market}}</li>
+    <li><strong>Country:</strong> {{listing.address.country}} ({{listing.address.country_code}})</li>
+  </ul>
+</section>
